@@ -21,7 +21,7 @@ OWNER_ID = 6156257558
 LOG_GROUP_ID = -1003433334668
 
 # =========================== RENDER SLEEP PROTECTION =======================
-# Flask server for Render sleep protection
+# Flask server for Render sleep protection - PORT 10000
 app = Flask(__name__)
 
 @app.route('/')
@@ -33,23 +33,23 @@ def health():
     return "✅ Bot is Healthy!"
 
 def run_flask():
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=10000)  # PORT 10000 KAR DIYA
 
 async def keep_alive():
-    """Render pe bot ko active rakhega"""
+    """Render pe bot ko active rakhega - IMPROVED VERSION"""
     while True:
         try:
-            # Har 3 minute mein ping karo
-            await asyncio.sleep(180)
+            # Har 2 minute mein ping karo (reduced time)
+            await asyncio.sleep(120)
             
             # Bot status check karo
             try:
                 me = await bot.get_me()
                 print(f"🤖 Bot Status: Active - @{me.username}")
                 
-                # Internal health check
+                # Internal health check - PORT 10000
                 try:
-                    response = requests.get('http://0.0.0.0:5000/health', timeout=10)
+                    response = requests.get('http://0.0.0.0:10000/health', timeout=10)
                     if response.status_code == 200:
                         print("✅ Internal Health Check: Successful")
                     else:
@@ -57,24 +57,34 @@ async def keep_alive():
                 except:
                     print("⚠️ Internal Health Check: Failed but bot is running")
                     
+                # External ping bhi karo for extra protection
+                try:
+                    response = requests.get('https://api.telegram.org', timeout=10)
+                    if response.status_code == 200:
+                        print("🌐 External Connection: Active")
+                except:
+                    print("⚠️ External Connection: Check failed")
+                    
             except Exception as e:
                 print(f"❌ Bot Status Check Failed: {e}")
                 
         except Exception as e:
             print(f"❌ Keep Alive Error: {e}")
-            await asyncio.sleep(60)
+            await asyncio.sleep(30)  # Error hone par 30 seconds wait
 
 # =========================== DATABASE =============================
 
 def db_connect():
-    conn = sqlite3.connect("bot.db")
+    conn = sqlite3.connect("bot.db", check_same_thread=False)
     cur = conn.cursor()
 
-    # Groups table
+    # Groups table - IMPROVED
     cur.execute("""
         CREATE TABLE IF NOT EXISTS groups (
             group_id INTEGER PRIMARY KEY,
-            biolinks INTEGER DEFAULT 1
+            group_name TEXT,
+            biolinks INTEGER DEFAULT 1,
+            added_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
 
@@ -111,9 +121,18 @@ def db_connect():
 
 DB = db_connect()
 
-def ensure_group(gid):
-    DB.execute("INSERT OR IGNORE INTO groups (group_id) VALUES (?)", (gid,))
-    DB.commit()
+def ensure_group(gid, group_name=None):
+    """Group ko database mein add karega aur name update karega"""
+    cur = DB.execute("SELECT 1 FROM groups WHERE group_id=?", (gid,))
+    if not cur.fetchone():
+        DB.execute("INSERT INTO groups (group_id, group_name) VALUES (?, ?)", 
+                  (gid, group_name or f"Group_{gid}"))
+        DB.commit()
+        print(f"✅ New group added to database: {gid}")
+    elif group_name:
+        # Group name update karo agar change hua hai
+        DB.execute("UPDATE groups SET group_name=? WHERE group_id=?", (group_name, gid))
+        DB.commit()
 
 def get_filters(gid):
     ensure_group(gid)
@@ -585,6 +604,9 @@ async def unmute_user_callback(cq: CallbackQuery):
 @dp.message(F.chat.type.in_(["group", "supergroup"]))
 async def handle_group_messages(msg: Message):
     """Handle all group messages - commands and bio scanning"""
+    
+    # Group ko database mein ensure karo with name
+    ensure_group(msg.chat.id, msg.chat.title)
     
     # Handle commands first
     if msg.text and msg.text.startswith('/'):
@@ -1340,7 +1362,7 @@ async def groups_cmd(msg: Message):
         return
     
     try:
-        cur = DB.execute("SELECT group_id FROM groups")
+        cur = DB.execute("SELECT group_id, group_name FROM groups")
         groups = cur.fetchall()
         
         if not groups:
@@ -1350,11 +1372,12 @@ async def groups_cmd(msg: Message):
         groups_text = "📋 All Groups:\n\n"
         for group in groups:
             group_id = group[0]
+            group_name = group[1]
             try:
                 chat = await bot.get_chat(group_id)
                 groups_text += f"• {chat.title} (ID: {group_id})\n"
             except:
-                groups_text += f"• Group ID: {group_id}\n"
+                groups_text += f"• {group_name} (ID: {group_id})\n"
         
         await msg.answer(groups_text)
         print("✅ Groups list sent successfully!")
@@ -1431,6 +1454,9 @@ async def bot_added_to_group(msg: Message):
         if member.id == bot_id:
             print(f"🤖 Bot added to group: {msg.chat.title}")
             
+            # Group ko database mein add karo with name
+            ensure_group(msg.chat.id, msg.chat.title)
+            
             thanks_text = (
                 "Thanks for adding me to this group! 🤖\n\n"
                 "I scan user bios in real-time when they message:\n"
@@ -1481,12 +1507,12 @@ async def main():
         print(f"❌ Error: {e}")
 
 if __name__ == "__main__":
-    # Flask server alag thread mein start karo
+    # Flask server alag thread mein start karo - PORT 10000
     from threading import Thread
     flask_thread = Thread(target=run_flask)
     flask_thread.daemon = True
     flask_thread.start()
-    print("✅ Flask server started on port 5000!")
+    print("✅ Flask server started on port 10000!")
     
     # Bot start karo
     asyncio.run(main())
