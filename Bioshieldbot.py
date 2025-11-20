@@ -1,5 +1,5 @@
 # Full Links Shield Bot with Real-Time Bio Protection, Warnings, Mute, Admin/Owner Commands, Start Message, Buttons & Log Group
-# RENDER DEPLOYMENT READY WITH ULTIMATE SLEEP PROTECTION
+# ULTIMATE RENDER SLEEP PROTECTION - STRONGEST VERSION
 
 import re
 import sqlite3
@@ -7,10 +7,12 @@ import asyncio
 import logging
 import requests
 import time
+import threading
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, Message
 from aiogram.filters import Command
 from flask import Flask
+import urllib3
 
 # Logging setup
 logging.basicConfig(level=logging.INFO)
@@ -20,8 +22,8 @@ BOT_TOKEN = "8321981151:AAEkUFM1sI-E32AOULrh7_7ASV9NJV0wMRA"
 OWNER_ID = 6156257558
 LOG_GROUP_ID = -1003433334668
 
-# =========================== RENDER SLEEP PROTECTION =======================
-# Flask server for Render sleep protection - PORT 10000
+# =========================== ULTIMATE RENDER SLEEP PROTECTION =======================
+# Flask server for Render sleep protection - MULTIPLE PORTS & AGGRESSIVE PINGING
 app = Flask(__name__)
 
 @app.route('/')
@@ -32,45 +34,130 @@ def home():
 def health():
     return "✅ Bot is Healthy!"
 
-def run_flask():
-    app.run(host='0.0.0.0', port=10000)  # PORT 10000 KAR DIYA
+@app.route('/ping')
+def ping():
+    return "🏓 Pong!"
 
-async def keep_alive():
-    """Render pe bot ko active rakhega - IMPROVED VERSION"""
+@app.route('/status')
+def status():
+    return "🟢 Bot Status: ACTIVE"
+
+@app.route('/keepalive')
+def keepalive():
+    return "❤️ Keep Alive Active"
+
+def run_flask():
+    app.run(host='0.0.0.0', port=10000)
+
+# Additional Flask server on different port
+app2 = Flask(__name__)
+
+@app2.route('/')
+def home2():
+    return "🤖 Backup Server Running!"
+
+@app2.route('/health2')
+def health2():
+    return "✅ Backup Health OK!"
+
+def run_flask2():
+    app2.run(host='0.0.0.0', port=10001)
+
+async def ultimate_keep_alive():
+    """ULTIMATE Sleep Protection - Multiple Layers"""
+    print("🛡️ Starting ULTIMATE Keep Alive System...")
+    
+    # Multiple external monitoring services
+    monitoring_urls = [
+        'https://api.telegram.org',
+        'https://google.com',
+        'https://cloudflare.com'
+    ]
+    
     while True:
         try:
-            # Har 2 minute mein ping karo (reduced time)
-            await asyncio.sleep(120)
+            print(f"🔵 Keep Alive Cycle Started at {time.strftime('%H:%M:%S')}")
             
-            # Bot status check karo
+            # Layer 1: Bot Self-Check
             try:
                 me = await bot.get_me()
-                print(f"🤖 Bot Status: Active - @{me.username}")
-                
-                # Internal health check - PORT 10000
-                try:
-                    response = requests.get('http://0.0.0.0:10000/health', timeout=10)
-                    if response.status_code == 200:
-                        print("✅ Internal Health Check: Successful")
-                    else:
-                        print("⚠️ Internal Health Check: Failed but bot is running")
-                except:
-                    print("⚠️ Internal Health Check: Failed but bot is running")
-                    
-                # External ping bhi karo for extra protection
-                try:
-                    response = requests.get('https://api.telegram.org', timeout=10)
-                    if response.status_code == 200:
-                        print("🌐 External Connection: Active")
-                except:
-                    print("⚠️ External Connection: Check failed")
-                    
+                print(f"🤖 Bot Status: ACTIVE - @{me.username}")
             except Exception as e:
-                print(f"❌ Bot Status Check Failed: {e}")
-                
+                print(f"❌ Bot Self-Check Failed: {e}")
+            
+            # Layer 2: Internal Health Checks (Multiple Ports)
+            internal_checks = [
+                ('http://0.0.0.0:10000/health', 'Main Server'),
+                ('http://0.0.0.0:10000/ping', 'Main Ping'),
+                ('http://0.0.0.0:10001/health2', 'Backup Server')
+            ]
+            
+            for url, name in internal_checks:
+                try:
+                    response = requests.get(url, timeout=5)
+                    if response.status_code == 200:
+                        print(f"✅ {name}: Healthy")
+                    else:
+                        print(f"⚠️ {name}: Status {response.status_code}")
+                except Exception as e:
+                    print(f"❌ {name} Check Failed: {e}")
+            
+            # Layer 3: External Connectivity Checks
+            external_success = 0
+            for url in monitoring_urls:
+                try:
+                    response = requests.get(url, timeout=10)
+                    if response.status_code == 200:
+                        external_success += 1
+                        print(f"🌐 External: {url} - OK")
+                except Exception as e:
+                    print(f"🌐 External: {url} - Failed")
+            
+            print(f"🌐 External Connectivity: {external_success}/{len(monitoring_urls)}")
+            
+            # Layer 4: Database Health Check
+            try:
+                cur = DB.execute("SELECT COUNT(*) FROM groups")
+                group_count = cur.fetchone()[0]
+                print(f"🗃️ Database Health: OK (Groups: {group_count})")
+            except Exception as e:
+                print(f"❌ Database Health Check Failed: {e}")
+            
+            # Layer 5: Send periodic keep-alive to log group (every 30 minutes)
+            current_time = time.time()
+            if hasattr(ultimate_keep_alive, 'last_log_time'):
+                if current_time - ultimate_keep_alive.last_log_time > 1800:  # 30 minutes
+                    try:
+                        await send_log("🟢 Bot Keep-Alive: All Systems Operational")
+                        ultimate_keep_alive.last_log_time = current_time
+                    except:
+                        pass
+            else:
+                ultimate_keep_alive.last_log_time = current_time
+            
+            print(f"🟢 Keep Alive Cycle Completed at {time.strftime('%H:%M:%S')}")
+            print("=" * 50)
+            
+            # Aggressive pinging - har 1 minute mein
+            await asyncio.sleep(60)
+            
         except Exception as e:
-            print(f"❌ Keep Alive Error: {e}")
-            await asyncio.sleep(30)  # Error hone par 30 seconds wait
+            print(f"💥 CRITICAL: Keep Alive System Error: {e}")
+            # Emergency restart attempt
+            try:
+                await asyncio.sleep(30)
+            except:
+                pass
+
+async def background_pinger():
+    """Background mein continuous ping karega"""
+    while True:
+        try:
+            # Simple ping to keep the connection alive
+            requests.get('http://0.0.0.0:10000/ping', timeout=2)
+            await asyncio.sleep(30)  # Har 30 seconds mein ping
+        except:
+            await asyncio.sleep(10)
 
 # =========================== DATABASE =============================
 
@@ -1484,6 +1571,7 @@ async def bot_added_to_group(msg: Message):
 # ============================ BOT RUNNER ============================
 async def main():
     print("🚀 Links Shield Bot is Starting...")
+    print("🛡️ ULTIMATE SLEEP PROTECTION ACTIVATED!")
     
     print("🤖 Bot starting...")
     try:
@@ -1492,27 +1580,46 @@ async def main():
         print("📍 Bot ID:", me.id)
         print("👤 Owner ID:", OWNER_ID)
         print("📝 Log Group ID:", LOG_GROUP_ID)
+        print("🌐 Multiple Ports: 10000, 10001")
+        print("🔄 Keep Alive: AGGRESSIVE MODE")
         print("🚀 Bot is now active and listening...")
         
         # Background unmute checker start karo
         asyncio.create_task(background_unmute_checker())
         print("✅ Background unmute checker started!")
         
-        # Keep alive task start karo
-        asyncio.create_task(keep_alive())
-        print("✅ Keep alive task started!")
+        # ULTIMATE Keep Alive start karo
+        asyncio.create_task(ultimate_keep_alive())
+        print("✅ ULTIMATE Keep Alive started!")
+        
+        # Background pinger start karo
+        asyncio.create_task(background_pinger())
+        print("✅ Background pinger started!")
         
         await dp.start_polling(bot)
     except Exception as e:
         print(f"❌ Error: {e}")
 
 if __name__ == "__main__":
-    # Flask server alag thread mein start karo - PORT 10000
+    # Multiple Flask servers alag threads mein start karo
     from threading import Thread
-    flask_thread = Thread(target=run_flask)
-    flask_thread.daemon = True
-    flask_thread.start()
-    print("✅ Flask server started on port 10000!")
+    
+    print("🔄 Starting Multiple Flask Servers...")
+    
+    # Main server on port 10000
+    flask_thread1 = Thread(target=run_flask)
+    flask_thread1.daemon = True
+    flask_thread1.start()
+    print("✅ Main Flask server started on port 10000!")
+    
+    # Backup server on port 10001
+    flask_thread2 = Thread(target=run_flask2)
+    flask_thread2.daemon = True
+    flask_thread2.start()
+    print("✅ Backup Flask server started on port 10001!")
+    
+    print("🛡️ ALL PROTECTION SYSTEMS ACTIVATED!")
+    print("=" * 60)
     
     # Bot start karo
     asyncio.run(main())
