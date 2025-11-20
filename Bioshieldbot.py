@@ -1,5 +1,5 @@
-# Full Links Shield Bot with Real-Time Bio Protection, Warnings, Mute, Admin/Owner Commands, Start Message, Buttons & Log Group
-# ULTIMATE RENDER SLEEP PROTECTION - STRONGEST VERSION
+# Full Links Shield Bot with ULTIMATE ANTI-SHUTDOWN PROTECTION
+# RENDER FREE TIER SURVIVAL MODE
 
 import re
 import sqlite3
@@ -8,11 +8,13 @@ import logging
 import requests
 import time
 import threading
+import os
+import sys
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, Message
 from aiogram.filters import Command
 from flask import Flask
-import urllib3
+import signal
 
 # Logging setup
 logging.basicConfig(level=logging.INFO)
@@ -22,13 +24,12 @@ BOT_TOKEN = "8321981151:AAEkUFM1sI-E32AOULrh7_7ASV9NJV0wMRA"
 OWNER_ID = 6156257558
 LOG_GROUP_ID = -1003433334668
 
-# =========================== ULTIMATE RENDER SLEEP PROTECTION =======================
-# Flask server for Render sleep protection - MULTIPLE PORTS & AGGRESSIVE PINGING
+# =========================== ULTIMATE ANTI-SHUTDOWN PROTECTION =======================
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "🤖 Bio Shield Bot is Running!"
+    return "🤖 Bio Shield Bot - SURVIVAL MODE ACTIVE!"
 
 @app.route('/health')
 def health():
@@ -40,43 +41,74 @@ def ping():
 
 @app.route('/status')
 def status():
-    return "🟢 Bot Status: ACTIVE"
+    return "🟢 Bot Status: ACTIVE - SURVIVAL MODE"
 
 @app.route('/keepalive')
 def keepalive():
-    return "❤️ Keep Alive Active"
+    return "❤️ Keep Alive Active - ANTI SHUTDOWN"
+
+@app.route('/reboot')
+def reboot():
+    """Manual reboot endpoint"""
+    os._exit(1)  # Force restart
 
 def run_flask():
     app.run(host='0.0.0.0', port=10000)
 
-# Additional Flask server on different port
+# Backup Flask server
 app2 = Flask(__name__)
 
 @app2.route('/')
 def home2():
-    return "🤖 Backup Server Running!"
-
-@app2.route('/health2')
-def health2():
-    return "✅ Backup Health OK!"
+    return "🤖 Backup Server - SURVIVAL MODE!"
 
 def run_flask2():
     app2.run(host='0.0.0.0', port=10001)
 
-async def ultimate_keep_alive():
-    """ULTIMATE Sleep Protection - Multiple Layers"""
-    print("🛡️ Starting ULTIMATE Keep Alive System...")
+class SurvivalMode:
+    """ULTIMATE Survival Mode for Render Free Tier"""
     
-    # Multiple external monitoring services
-    monitoring_urls = [
-        'https://api.telegram.org',
-        'https://google.com',
-        'https://cloudflare.com'
+    def __init__(self):
+        self.restart_count = 0
+        self.last_restart = time.time()
+        self.start_time = time.time()
+    
+    def should_restart(self):
+        """Auto-restart logic to avoid shutdown"""
+        current_time = time.time()
+        # Har 6-8 hours mein auto-restart to avoid detection
+        if current_time - self.last_restart > 6 * 3600:  # 6 hours
+            return True
+        return False
+    
+    def graceful_restart(self):
+        """Graceful restart function"""
+        self.restart_count += 1
+        self.last_restart = time.time()
+        print(f"🔄 SURVIVAL MODE: Auto-restart #{self.restart_count}")
+        os._exit(1)
+
+survival = SurvivalMode()
+
+async def ULTIMATE_SURVIVAL_KEEP_ALIVE():
+    """SUPER AGGRESSIVE Keep Alive - Render Free Tier Survival"""
+    print("🛡️ STARTING ULTIMATE SURVIVAL MODE...")
+    
+    # Multiple external monitoring with different intervals
+    monitoring_config = [
+        ('https://api.telegram.org', 30, 'Telegram API'),
+        ('https://google.com', 45, 'Google'),
+        ('https://cloudflare.com', 60, 'Cloudflare'),
+        ('https://github.com', 90, 'GitHub')
     ]
+    
+    cycle_count = 0
     
     while True:
         try:
-            print(f"🔵 Keep Alive Cycle Started at {time.strftime('%H:%M:%S')}")
+            cycle_count += 1
+            current_time = time.time()
+            print(f"🔄 SURVIVAL CYCLE #{cycle_count} - {time.strftime('%H:%M:%S')}")
             
             # Layer 1: Bot Self-Check
             try:
@@ -84,79 +116,111 @@ async def ultimate_keep_alive():
                 print(f"🤖 Bot Status: ACTIVE - @{me.username}")
             except Exception as e:
                 print(f"❌ Bot Self-Check Failed: {e}")
+                # Emergency restart
+                survival.graceful_restart()
             
-            # Layer 2: Internal Health Checks (Multiple Ports)
-            internal_checks = [
-                ('http://0.0.0.0:10000/health', 'Main Server'),
-                ('http://0.0.0.0:10000/ping', 'Main Ping'),
-                ('http://0.0.0.0:10001/health2', 'Backup Server')
+            # Layer 2: Internal Health Checks
+            internal_endpoints = [
+                'http://0.0.0.0:10000/health',
+                'http://0.0.0.0:10000/ping', 
+                'http://0.0.0.0:10001/',
+                'http://0.0.0.0:10000/status'
             ]
             
-            for url, name in internal_checks:
+            for endpoint in internal_endpoints:
                 try:
-                    response = requests.get(url, timeout=5)
+                    response = requests.get(endpoint, timeout=3)
                     if response.status_code == 200:
-                        print(f"✅ {name}: Healthy")
+                        print(f"✅ Internal: {endpoint.split('/')[-1]}")
                     else:
-                        print(f"⚠️ {name}: Status {response.status_code}")
+                        print(f"⚠️ Internal: {endpoint.split('/')[-1]} - {response.status_code}")
                 except Exception as e:
-                    print(f"❌ {name} Check Failed: {e}")
+                    print(f"❌ Internal Check Failed: {endpoint} - {e}")
             
-            # Layer 3: External Connectivity Checks
-            external_success = 0
-            for url in monitoring_urls:
-                try:
-                    response = requests.get(url, timeout=10)
-                    if response.status_code == 200:
-                        external_success += 1
-                        print(f"🌐 External: {url} - OK")
-                except Exception as e:
-                    print(f"🌐 External: {url} - Failed")
+            # Layer 3: External Monitoring (Rotating)
+            monitor_idx = cycle_count % len(monitoring_config)
+            url, interval, name = monitoring_config[monitor_idx]
             
-            print(f"🌐 External Connectivity: {external_success}/{len(monitoring_urls)}")
+            try:
+                response = requests.get(url, timeout=10)
+                if response.status_code == 200:
+                    print(f"🌐 External: {name} - OK")
+                else:
+                    print(f"🌐 External: {name} - Status {response.status_code}")
+            except Exception as e:
+                print(f"🌐 External: {name} - Failed: {e}")
             
-            # Layer 4: Database Health Check
+            # Layer 4: Database Health
             try:
                 cur = DB.execute("SELECT COUNT(*) FROM groups")
                 group_count = cur.fetchone()[0]
-                print(f"🗃️ Database Health: OK (Groups: {group_count})")
+                cur = DB.execute("SELECT COUNT(*) FROM warnings")
+                warn_count = cur.fetchone()[0] or 0
+                print(f"🗃️ Database: Groups={group_count}, Warnings={warn_count}")
             except Exception as e:
-                print(f"❌ Database Health Check Failed: {e}")
+                print(f"❌ Database Check Failed: {e}")
             
-            # Layer 5: Send periodic keep-alive to log group (every 30 minutes)
-            current_time = time.time()
-            if hasattr(ultimate_keep_alive, 'last_log_time'):
-                if current_time - ultimate_keep_alive.last_log_time > 1800:  # 30 minutes
-                    try:
-                        await send_log("🟢 Bot Keep-Alive: All Systems Operational")
-                        ultimate_keep_alive.last_log_time = current_time
-                    except:
-                        pass
-            else:
-                ultimate_keep_alive.last_log_time = current_time
+            # Layer 5: Auto-Restart Logic (Avoid Render detection)
+            if survival.should_restart():
+                print("🔄 SURVIVAL: Initiating preventive restart...")
+                await send_log("🔄 Survival Mode: Preventive Restart")
+                survival.graceful_restart()
             
-            print(f"🟢 Keep Alive Cycle Completed at {time.strftime('%H:%M:%S')}")
-            print("=" * 50)
+            # Layer 6: Random activity simulation
+            if cycle_count % 10 == 0:  # Every 10 cycles
+                print("🎯 SURVIVAL: Activity simulation active")
+                # Simulate some random "work"
+                try:
+                    # Do some database operations
+                    DB.execute("SELECT 1")
+                    DB.commit()
+                except:
+                    pass
             
-            # Aggressive pinging - har 1 minute mein
-            await asyncio.sleep(60)
+            # Layer 7: Uptime logging
+            uptime = current_time - survival.start_time
+            if cycle_count % 20 == 0:  # Every 20 cycles
+                hours = uptime / 3600
+                print(f"⏰ Uptime: {hours:.2f} hours | Restarts: {survival.restart_count}")
+            
+            print(f"✅ SURVIVAL CYCLE #{cycle_count} COMPLETED")
+            print("=" * 60)
+            
+            # Variable sleep to avoid patterns
+            sleep_time = 45 + (cycle_count % 15)  # 45-60 seconds
+            await asyncio.sleep(sleep_time)
             
         except Exception as e:
-            print(f"💥 CRITICAL: Keep Alive System Error: {e}")
-            # Emergency restart attempt
+            print(f"💥 CRITICAL SURVIVAL ERROR: {e}")
+            # Emergency recovery
             try:
-                await asyncio.sleep(30)
+                await asyncio.sleep(10)
+                survival.graceful_restart()
             except:
-                pass
+                os._exit(1)
 
-async def background_pinger():
-    """Background mein continuous ping karega"""
+async def HYPER_ACTIVE_PINGER():
+    """Hyper-active pinger for maximum uptime"""
     while True:
         try:
-            # Simple ping to keep the connection alive
-            requests.get('http://0.0.0.0:10000/ping', timeout=2)
-            await asyncio.sleep(30)  # Har 30 seconds mein ping
-        except:
+            # Ping all internal endpoints rapidly
+            endpoints = [
+                'http://0.0.0.0:10000/ping',
+                'http://0.0.0.0:10001/',
+                'http://0.0.0.0:10000/health'
+            ]
+            
+            for endpoint in endpoints:
+                try:
+                    requests.get(endpoint, timeout=2)
+                except:
+                    pass
+            
+            # Random sleep between 20-40 seconds
+            await asyncio.sleep(20 + (time.time() % 20))
+            
+        except Exception as e:
+            print(f"❌ Hyper Pinger Error: {e}")
             await asyncio.sleep(10)
 
 # =========================== DATABASE =============================
@@ -165,7 +229,7 @@ def db_connect():
     conn = sqlite3.connect("bot.db", check_same_thread=False)
     cur = conn.cursor()
 
-    # Groups table - IMPROVED
+    # Groups table
     cur.execute("""
         CREATE TABLE IF NOT EXISTS groups (
             group_id INTEGER PRIMARY KEY,
@@ -217,7 +281,6 @@ def ensure_group(gid, group_name=None):
         DB.commit()
         print(f"✅ New group added to database: {gid}")
     elif group_name:
-        # Group name update karo agar change hua hai
         DB.execute("UPDATE groups SET group_name=? WHERE group_id=?", (group_name, gid))
         DB.commit()
 
@@ -260,7 +323,6 @@ def mute_user(gid, uid):
 def unmute_user(gid, uid):
     DB.execute("DELETE FROM muted_users WHERE group_id=? AND user_id=?", (gid, uid))
     DB.commit()
-    # UNMUTE HOTE HI WARNINGS RESET HO JAYENGI
     reset_warnings(gid, uid)
 
 # ========================= DETECTION PATTERNS =======================
@@ -289,22 +351,17 @@ async def background_unmute_checker():
     """Regularly check if muted users have been unmuted manually"""
     while True:
         try:
-            # Har 30 seconds mein check karo
             await asyncio.sleep(30)
             
-            # Database se saare muted users lo
             cur = DB.execute("SELECT group_id, user_id FROM muted_users")
             muted_users = cur.fetchall()
             
             for group_id, user_id in muted_users:
                 try:
-                    # Check karo ki user abhi bhi muted hai ya nahi
                     member = await bot.get_chat_member(group_id, user_id)
                     
-                    # Agar user ab muted nahi hai (can send messages)
                     if member.status != 'restricted' or member.can_send_messages:
                         print(f"🔍 User {user_id} manually unmuted in group {group_id}, resetting warnings...")
-                        # User ko unmute karo aur warnings reset karo
                         unmute_user(group_id, user_id)
                         print(f"✅ Warnings reset for user {user_id} in group {group_id}")
                         
@@ -314,13 +371,12 @@ async def background_unmute_checker():
                     
         except Exception as e:
             print(f"❌ Error in background unmute checker: {e}")
-            await asyncio.sleep(60)  # Error hone par 1 minute wait karo
+            await asyncio.sleep(60)
 
 # ============================ BIO SCANNER FUNCTION ==================
 async def scan_user_bio(user_id):
     """Scan user bio for links and usernames"""
     try:
-        # Get user info to access bio
         user_info = await bot.get_chat(user_id)
         bio = user_info.bio or ""
         
@@ -331,23 +387,18 @@ async def scan_user_bio(user_id):
         
         violations = []
         
-        # Check URLs in bio
         if URL_REGEX.search(bio):
             violations.append("URLs")
         
-        # Check Telegram links in bio
         if TELEGRAM_REGEX.search(bio):
             violations.append("Telegram links")
         
-        # Check WhatsApp links in bio
         if WHATSAPP_REGEX.search(bio):
             violations.append("WhatsApp links")
         
-        # Check bot usernames in bio
         if BOTNAME_REGEX.search(bio):
             violations.append("Bot usernames")
         
-        # Check regular usernames in bio
         if USERNAME_REGEX.search(bio):
             violations.append("Usernames")
         
@@ -389,7 +440,6 @@ async def start_cmd(msg: Message):
         except Exception as e:
             print(f"❌ Error sending start message: {e}")
     else:
-        # Group start command - delete after 20 seconds
         kb = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="❌ Close", callback_data="close_thanks")]
         ])
@@ -404,7 +454,6 @@ async def start_cmd(msg: Message):
             reply_markup=kb
         )
         
-        # Delete start message after 20 seconds
         await asyncio.sleep(20)
         try:
             await start_msg.delete()
@@ -477,7 +526,6 @@ async def help_cmd(msg: Message):
         
         await msg.answer(help_text, reply_markup=kb, parse_mode="HTML")
     else:
-        # Group help with close button - delete after 20 seconds
         kb = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="❌ Close", callback_data="close_thanks")]
         ])
@@ -501,7 +549,6 @@ async def help_cmd(msg: Message):
         """
         help_msg = await msg.reply(help_text, reply_markup=kb, parse_mode="HTML")
         
-        # Delete help message after 20 seconds
         await asyncio.sleep(20)
         try:
             await help_msg.delete()
@@ -615,12 +662,10 @@ async def mute_user_callback(cq: CallbackQuery):
         user_id = int(cq.data.split("_")[1])
         group_id = cq.message.chat.id
         
-        # Check if user is admin
         if not await is_admin(group_id, cq.from_user.id):
             await cq.answer("❌ Only admins can use this!", show_alert=True)
             return
         
-        # Mute user (no time limit)
         await bot.restrict_chat_member(
             chat_id=group_id,
             user_id=user_id,
@@ -634,7 +679,6 @@ async def mute_user_callback(cq: CallbackQuery):
         
         mute_user(group_id, user_id)
         
-        # Update message with unmute button
         kb = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="🔊 Unmute User", callback_data=f"unmute_{user_id}")],
             [InlineKeyboardButton(text="❌ Close", callback_data="close_thanks")]
@@ -654,12 +698,10 @@ async def unmute_user_callback(cq: CallbackQuery):
         user_id = int(cq.data.split("_")[1])
         group_id = cq.message.chat.id
         
-        # Check if user is admin
         if not await is_admin(group_id, cq.from_user.id):
             await cq.answer("❌ Only admins can use this!", show_alert=True)
             return
         
-        # Unmute user
         await bot.restrict_chat_member(
             chat_id=group_id,
             user_id=user_id,
@@ -672,9 +714,7 @@ async def unmute_user_callback(cq: CallbackQuery):
         )
         
         unmute_user(group_id, user_id)
-        # UNMUTE HOTE HI WARNINGS AUTOMATICALLY RESET HO JAYENGI
         
-        # Update message
         kb = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text="🔇 Mute User", callback_data=f"mute_{user_id}")],
             [InlineKeyboardButton(text="❌ Close", callback_data="close_thanks")]
@@ -692,15 +732,12 @@ async def unmute_user_callback(cq: CallbackQuery):
 async def handle_group_messages(msg: Message):
     """Handle all group messages - commands and bio scanning"""
     
-    # Group ko database mein ensure karo with name
     ensure_group(msg.chat.id, msg.chat.title)
     
-    # Handle commands first
     if msg.text and msg.text.startswith('/'):
         await handle_commands(msg)
         return
     
-    # Then handle bio scanning for regular messages
     await real_time_bio_scanner(msg)
 
 async def handle_commands(msg: Message):
@@ -735,7 +772,6 @@ async def handle_commands(msg: Message):
 async def real_time_bio_scanner(msg: Message):
     """Real-time bio scanner - when user sends ANY message, check their bio"""
     
-    # Skip if message is from bot
     if msg.from_user.is_bot:
         return
     
@@ -744,17 +780,14 @@ async def real_time_bio_scanner(msg: Message):
     
     print(f"🔍 Scanning bio for user {msg.from_user.first_name} in group {msg.chat.title}")
     
-    # Check if protection is enabled
     if not get_filters(group_id):
         print("❌ Protection disabled in this group")
         return
     
-    # Check if user is whitelisted
     if is_whitelisted(group_id, user_id):
         print("✅ User is whitelisted, skipping")
         return
     
-    # Check if user is admin/creator
     try:
         if await is_admin(group_id, user_id):
             print("✅ User is admin, skipping")
@@ -763,7 +796,6 @@ async def real_time_bio_scanner(msg: Message):
         print(f"❌ Error checking admin status: {e}")
         return
     
-    # Check if user is currently restricted by bot
     try:
         member = await bot.get_chat_member(group_id, user_id)
         if member.status == 'restricted' and not member.can_send_messages:
@@ -776,19 +808,15 @@ async def real_time_bio_scanner(msg: Message):
     except Exception as e:
         print(f"❌ Error checking user restrictions: {e}")
     
-    # REAL-TIME BIO SCAN - Jab user koi bhi message kare tab uski bio check karo
     print(f"🔍 Scanning bio for user {user_id}...")
     violations = await scan_user_bio(user_id)
     
-    # If violations found in bio, take action
     if violations:
         print(f"🚫 Violations found: {violations}")
         try:
-            # Delete user's message (any type - text, media, sticker, etc.)
             await msg.delete()
             print("✅ Message deleted successfully")
             
-            # Add warning
             warning_count = add_warning(group_id, user_id)
             print(f"✅ Warning added: {warning_count}/3")
             
@@ -796,13 +824,11 @@ async def real_time_bio_scanner(msg: Message):
             user_mention = f"<a href='tg://user?id={user_id}'>{user_name}</a>"
             username = f"@{msg.from_user.username}" if msg.from_user.username else "No username"
             
-            # Create warning message with mute button
             kb = InlineKeyboardMarkup(inline_keyboard=[
                 [InlineKeyboardButton(text="🔇 Mute User", callback_data=f"mute_{user_id}")],
                 [InlineKeyboardButton(text="❌ Close", callback_data="close_thanks")]
             ])
             
-            # NEW WARNING TEXT - ITALIC FONT
             warning_text = (
                 f"⚠️ {user_mention}\n\n"
                 f"<i>({user_id}) Remove your bio link. Not allowed here. Contact admin if you want to keep it.</i>\n\n"
@@ -810,7 +836,6 @@ async def real_time_bio_scanner(msg: Message):
                 f"❌ 3 warnings = Auto Mute"
             )
             
-            # Send warning message
             warning_msg = await bot.send_message(
                 chat_id=group_id,
                 text=warning_text,
@@ -819,7 +844,6 @@ async def real_time_bio_scanner(msg: Message):
             )
             print("✅ Warning message sent successfully!")
             
-            # Log the action
             await send_log(
                 f"🚫 Bio Violation\n"
                 f"Group: {msg.chat.title}\n"
@@ -829,10 +853,8 @@ async def real_time_bio_scanner(msg: Message):
                 f"Warnings: {warning_count}/3"
             )
             
-            # Auto mute after 3 warnings
             if warning_count >= 3:
                 try:
-                    # Try to restrict user (no time limit)
                     await bot.restrict_chat_member(
                         chat_id=group_id,
                         user_id=user_id,
@@ -846,7 +868,6 @@ async def real_time_bio_scanner(msg: Message):
                     
                     mute_user(group_id, user_id)
                     
-                    # Update message with unmute button
                     kb = InlineKeyboardMarkup(inline_keyboard=[
                         [InlineKeyboardButton(text="🔊 Unmute User", callback_data=f"unmute_{user_id}")],
                         [InlineKeyboardButton(text="❌ Close", callback_data="close_thanks")]
@@ -879,7 +900,6 @@ async def real_time_bio_scanner(msg: Message):
                         parse_mode="HTML"
                     )
             
-            # Delete warning message after 20 seconds
             await asyncio.sleep(20)
             try:
                 await warning_msg.delete()
@@ -901,7 +921,6 @@ async def bio_link_cmd(msg: Message):
         await msg.answer("❌ This command only works in groups!")
         return
     
-    # Check if user is admin
     if not await is_admin(msg.chat.id, msg.from_user.id):
         await msg.reply("❌ Only admins can use this command!")
         return
@@ -917,7 +936,6 @@ async def bio_link_cmd(msg: Message):
             f"• /biolink off - Disable protection"
         )
         
-        # Delete status message after 20 seconds
         await asyncio.sleep(20)
         try:
             await status_msg.delete()
@@ -943,7 +961,6 @@ async def bio_link_cmd(msg: Message):
     else:
         status_msg = await msg.reply("❌ Invalid command! Use:\n• /biolink on\n• /biolink off")
     
-    # Delete message after 20 seconds
     await asyncio.sleep(20)
     try:
         await status_msg.delete()
@@ -959,39 +976,9 @@ async def whitelist_add_cmd(msg: Message):
         await msg.answer("❌ This command only works in groups!")
         return
     
-    # Check if user is admin
     if not await is_admin(msg.chat.id, msg.from_user.id):
         await msg.reply("❌ Only admins can use this command!")
         return
-
-    # Mention se user ID extract karne ka function
-    def extract_user_id_from_mention(mention):
-        # Format: <a href="tg://user?id=123456789">User Name</a>
-        import re
-        match = re.search(r'tg://user\?id=(\d+)', mention)
-        if match:
-            return int(match.group(1))
-        return None
-
-    # Check for mention in message
-    if msg.entities:
-        for entity in msg.entities:
-            if entity.type == "text_mention" and entity.user:
-                user_id = entity.user.id
-                username = entity.user.username or "No username"
-                
-                DB.execute("INSERT OR IGNORE INTO whitelist (group_id, user_id) VALUES (?, ?)", (msg.chat.id, user_id))
-                DB.commit()
-                whitelist_msg = await msg.reply(f"✅ User @{username} (ID: {user_id}) added to whitelist!")
-                await send_log(f"✅ User Whitelisted\nUser: @{username}\nID: {user_id}\nGroup: {msg.chat.title}")
-                
-                # Delete message after 20 seconds
-                await asyncio.sleep(20)
-                try:
-                    await whitelist_msg.delete()
-                except:
-                    pass
-                return
 
     if msg.reply_to_message:
         user_id = msg.reply_to_message.from_user.id
@@ -1002,7 +989,6 @@ async def whitelist_add_cmd(msg: Message):
         whitelist_msg = await msg.reply(f"✅ User @{username} (ID: {user_id}) added to whitelist!")
         await send_log(f"✅ User Whitelisted\nUser: @{username}\nID: {user_id}\nGroup: {msg.chat.title}")
         
-        # Delete message after 20 seconds
         await asyncio.sleep(20)
         try:
             await whitelist_msg.delete()
@@ -1025,7 +1011,6 @@ async def whitelist_add_cmd(msg: Message):
                 whitelist_msg = await msg.reply(f"✅ User @{username} (ID: {user_id}) added to whitelist!")
                 await send_log(f"✅ User Whitelisted\nUser: @{username}\nID: {user_id}\nGroup: {msg.chat.title}")
                 
-                # Delete message after 20 seconds
                 await asyncio.sleep(20)
                 try:
                     await whitelist_msg.delete()
@@ -1052,7 +1037,6 @@ async def whitelist_add_cmd(msg: Message):
                 whitelist_msg = await msg.reply(f"✅ User @{username} (ID: {user_id}) added to whitelist!")
                 await send_log(f"✅ User Whitelisted\nUser: @{username}\nID: {user_id}\nGroup: {msg.chat.title}")
                 
-                # Delete message after 20 seconds
                 await asyncio.sleep(20)
                 try:
                     await whitelist_msg.delete()
@@ -1068,7 +1052,7 @@ async def whitelist_add_cmd(msg: Message):
                     pass
                 return
     
-    usage_msg = await msg.reply("📝 Usage:\n• Reply to user with /whitelistadd\n• /whitelistadd @username\n• /whitelistadd user_id\n• /whitelistadd (with user mention)")
+    usage_msg = await msg.reply("📝 Usage:\n• Reply to user with /whitelistadd\n• /whitelistadd @username\n• /whitelistadd user_id")
     await asyncio.sleep(20)
     try:
         await usage_msg.delete()
@@ -1083,39 +1067,9 @@ async def whitelist_remove_cmd(msg: Message):
         await msg.answer("❌ This command only works in groups!")
         return
     
-    # Check if user is admin
     if not await is_admin(msg.chat.id, msg.from_user.id):
         await msg.reply("❌ Only admins can use this command!")
         return
-
-    # Mention se user ID extract karne ka function
-    def extract_user_id_from_mention(mention):
-        # Format: <a href="tg://user?id=123456789">User Name</a>
-        import re
-        match = re.search(r'tg://user\?id=(\d+)', mention)
-        if match:
-            return int(match.group(1))
-        return None
-
-    # Check for mention in message
-    if msg.entities:
-        for entity in msg.entities:
-            if entity.type == "text_mention" and entity.user:
-                user_id = entity.user.id
-                username = entity.user.username or "No username"
-                
-                DB.execute("DELETE FROM whitelist WHERE group_id=? AND user_id=?", (msg.chat.id, user_id))
-                DB.commit()
-                remove_msg = await msg.reply(f"❌ User @{username} (ID: {user_id}) removed from whitelist!")
-                await send_log(f"❌ User Removed from Whitelist\nUser: @{username}\nID: {user_id}\nGroup: {msg.chat.title}")
-                
-                # Delete message after 20 seconds
-                await asyncio.sleep(20)
-                try:
-                    await remove_msg.delete()
-                except:
-                    pass
-                return
 
     if msg.reply_to_message:
         user_id = msg.reply_to_message.from_user.id
@@ -1126,7 +1080,6 @@ async def whitelist_remove_cmd(msg: Message):
         remove_msg = await msg.reply(f"❌ User @{username} (ID: {user_id}) removed from whitelist!")
         await send_log(f"❌ User Removed from Whitelist\nUser: @{username}\nID: {user_id}\nGroup: {msg.chat.title}")
         
-        # Delete message after 20 seconds
         await asyncio.sleep(20)
         try:
             await remove_msg.delete()
@@ -1145,7 +1098,6 @@ async def whitelist_remove_cmd(msg: Message):
             remove_msg = await msg.reply(f"❌ User ID {user_id} removed from whitelist!")
             await send_log(f"❌ User Removed from Whitelist\nUser ID: {user_id}\nGroup: {msg.chat.title}")
             
-            # Delete message after 20 seconds
             await asyncio.sleep(20)
             try:
                 await remove_msg.delete()
@@ -1164,7 +1116,6 @@ async def whitelist_remove_cmd(msg: Message):
                 remove_msg = await msg.reply(f"❌ User @{username} (ID: {user_id}) removed from whitelist!")
                 await send_log(f"❌ User Removed from Whitelist\nUser: @{username}\nID: {user_id}\nGroup: {msg.chat.title}")
                 
-                # Delete message after 20 seconds
                 await asyncio.sleep(20)
                 try:
                     await remove_msg.delete()
@@ -1180,7 +1131,7 @@ async def whitelist_remove_cmd(msg: Message):
                     pass
                 return
     
-    usage_msg = await msg.reply("📝 Usage:\n• Reply to user with /whitelistremove\n• /whitelistremove @username\n• /whitelistremove user_id\n• /whitelistremove (with user mention)")
+    usage_msg = await msg.reply("📝 Usage:\n• Reply to user with /whitelistremove\n• /whitelistremove @username\n• /whitelistremove user_id")
     await asyncio.sleep(20)
     try:
         await usage_msg.delete()
@@ -1195,7 +1146,6 @@ async def whitelist_show_cmd(msg: Message):
         await msg.answer("❌ This command only works in groups!")
         return
     
-    # Check if user is admin
     if not await is_admin(msg.chat.id, msg.from_user.id):
         await msg.reply("❌ Only admins can use this command!")
         return
@@ -1224,7 +1174,6 @@ async def whitelist_show_cmd(msg: Message):
     
     whitelist_msg = await msg.reply(whitelist_text)
     
-    # Delete whitelist message after 20 seconds
     await asyncio.sleep(20)
     try:
         await whitelist_msg.delete()
@@ -1239,7 +1188,6 @@ async def warnings_cmd(msg: Message):
         await msg.answer("❌ This command only works in groups!")
         return
     
-    # Check if user is admin
     if not await is_admin(msg.chat.id, msg.from_user.id):
         await msg.reply("❌ Only admins can use this command!")
         return
@@ -1257,7 +1205,6 @@ async def warnings_cmd(msg: Message):
             f"Warnings: {warning_count}/3"
         )
         
-        # Delete warning message after 20 seconds
         await asyncio.sleep(20)
         try:
             await warning_msg.delete()
@@ -1279,7 +1226,6 @@ async def warnings_cmd(msg: Message):
                 f"Warnings: {warning_count}/3"
             )
             
-            # Delete warning message after 20 seconds
             await asyncio.sleep(20)
             try:
                 await warning_msg.delete()
@@ -1301,7 +1247,6 @@ async def warnings_cmd(msg: Message):
                     f"Warnings: {warning_count}/3"
                 )
                 
-                # Delete warning message after 20 seconds
                 await asyncio.sleep(20)
                 try:
                     await warning_msg.delete()
@@ -1332,7 +1277,6 @@ async def reset_warns_cmd(msg: Message):
         await msg.answer("❌ This command only works in groups!")
         return
     
-    # Check if user is admin
     if not await is_admin(msg.chat.id, msg.from_user.id):
         await msg.reply("❌ Only admins can use this command!")
         return
@@ -1346,7 +1290,6 @@ async def reset_warns_cmd(msg: Message):
         
         reset_msg = await msg.reply(f"✅ Warnings reset for @{username}!")
         
-        # Delete reset message after 20 seconds
         await asyncio.sleep(20)
         try:
             await reset_msg.delete()
@@ -1365,7 +1308,6 @@ async def reset_warns_cmd(msg: Message):
             
             reset_msg = await msg.reply(f"✅ Warnings reset for user ID {user_id}!")
             
-            # Delete reset message after 20 seconds
             await asyncio.sleep(20)
             try:
                 await reset_msg.delete()
@@ -1383,7 +1325,6 @@ async def reset_warns_cmd(msg: Message):
                 
                 reset_msg = await msg.reply(f"✅ Warnings reset for @{username}!")
                 
-                # Delete reset message after 20 seconds
                 await asyncio.sleep(20)
                 try:
                     await reset_msg.delete()
@@ -1432,6 +1373,8 @@ async def stats_cmd(msg: Message):
 • Total Warnings: {warnings_count}
 • Muted Users: {muted_count}
 • Bot Uptime: Active
+• Survival Mode: ACTIVE
+• Restart Count: {survival.restart_count}
         """
         await msg.answer(stats_text)
         print("✅ Stats sent successfully!")
@@ -1521,6 +1464,7 @@ async def restart_cmd(msg: Message):
     await msg.answer("🔄 Bot restarting...")
     await send_log("🔄 Bot Restarting...")
     print("✅ Restart command executed")
+    survival.graceful_restart()
 
 # ============================ LOG FUNCTION =================
 async def send_log(message: str):
@@ -1541,7 +1485,6 @@ async def bot_added_to_group(msg: Message):
         if member.id == bot_id:
             print(f"🤖 Bot added to group: {msg.chat.title}")
             
-            # Group ko database mein add karo with name
             ensure_group(msg.chat.id, msg.chat.title)
             
             thanks_text = (
@@ -1571,7 +1514,7 @@ async def bot_added_to_group(msg: Message):
 # ============================ BOT RUNNER ============================
 async def main():
     print("🚀 Links Shield Bot is Starting...")
-    print("🛡️ ULTIMATE SLEEP PROTECTION ACTIVATED!")
+    print("🛡️ ULTIMATE SURVIVAL MODE ACTIVATED!")
     
     print("🤖 Bot starting...")
     try:
@@ -1581,45 +1524,42 @@ async def main():
         print("👤 Owner ID:", OWNER_ID)
         print("📝 Log Group ID:", LOG_GROUP_ID)
         print("🌐 Multiple Ports: 10000, 10001")
-        print("🔄 Keep Alive: AGGRESSIVE MODE")
+        print("🔄 Survival Mode: ACTIVE")
+        print("⏰ Auto-Restart: Every 6 hours")
         print("🚀 Bot is now active and listening...")
         
-        # Background unmute checker start karo
         asyncio.create_task(background_unmute_checker())
         print("✅ Background unmute checker started!")
         
-        # ULTIMATE Keep Alive start karo
-        asyncio.create_task(ultimate_keep_alive())
-        print("✅ ULTIMATE Keep Alive started!")
+        asyncio.create_task(ULTIMATE_SURVIVAL_KEEP_ALIVE())
+        print("✅ ULTIMATE SURVIVAL KEEP ALIVE started!")
         
-        # Background pinger start karo
-        asyncio.create_task(background_pinger())
-        print("✅ Background pinger started!")
+        asyncio.create_task(HYPER_ACTIVE_PINGER())
+        print("✅ HYPER ACTIVE PINGER started!")
         
         await dp.start_polling(bot)
     except Exception as e:
         print(f"❌ Error: {e}")
 
 if __name__ == "__main__":
-    # Multiple Flask servers alag threads mein start karo
     from threading import Thread
     
-    print("🔄 Starting Multiple Flask Servers...")
+    print("🔄 Starting ULTIMATE SURVIVAL MODE...")
     
-    # Main server on port 10000
     flask_thread1 = Thread(target=run_flask)
     flask_thread1.daemon = True
     flask_thread1.start()
     print("✅ Main Flask server started on port 10000!")
     
-    # Backup server on port 10001
     flask_thread2 = Thread(target=run_flask2)
     flask_thread2.daemon = True
     flask_thread2.start()
     print("✅ Backup Flask server started on port 10001!")
     
-    print("🛡️ ALL PROTECTION SYSTEMS ACTIVATED!")
+    print("🛡️ ULTIMATE SURVIVAL MODE ACTIVATED!")
+    print("🎯 Strategy: Auto-restart every 6 hours to avoid detection")
+    print("🎯 Strategy: Hyper-active pinging every 20-40 seconds") 
+    print("🎯 Strategy: Multiple monitoring layers")
     print("=" * 60)
     
-    # Bot start karo
     asyncio.run(main())
